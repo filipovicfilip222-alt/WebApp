@@ -1,0 +1,206 @@
+version: '3.9'
+
+services:
+  # PostgreSQL 16 — Baza podataka sa pgvector
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: studentska_postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: studentska_platforma
+      TZ: Europe/Belgrade
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./infra/postgres/init.sql:/docker-entrypoint-initdb.d/01-init.sql
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # Redis 7 — Keš, locking, queue
+  redis:
+    image: redis:7-alpine
+    container_name: studentska_redis
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-redis}
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-redis}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # Keycloak 24 — SSO i RBAC
+  keycloak:
+    image: quay.io/keycloak/keycloak:24.0.5
+    container_name: studentska_keycloak
+    environment:
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:5432/keycloak
+      KC_DB_USERNAME: ${KC_DB_USERNAME:-keycloak}
+      KC_DB_PASSWORD: ${KC_DB_PASSWORD:-keycloak}
+      KC_ADMIN: ${KC_ADMIN:-admin}
+      KC_ADMIN_PASSWORD: ${KC_ADMIN_PASSWORD:-admin}
+      KC_PROXY: edge
+      KC_HOSTNAME_STRICT: "false"
+      KC_HTTP_ENABLED: "true"
+      KC_LOG_LEVEL: INFO
+      TZ: Europe/Belgrade
+    command:
+      - start
+      - --import-realm
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./infra/keycloak/imports/realm-config.json:/opt/keycloak/data/import/realm-config.json
+    networks:
+      - backend
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # MinIO — Object storage (S3-compatible)
+  minio:
+    image: minio/minio:latest
+    container_name: studentska_minio
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin}
+      TZ: Europe/Belgrade
+    command: server /data --console-address ":9001"
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_data:/data
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # FastAPI Backend
+  fastapi:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: studentska_fastapi
+    environment:
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/studentska_platforma
+      REDIS_URL: redis://:${REDIS_PASSWORD:-redis}@redis:6379/0
+      KEYCLOAK_SERVER_URL: http://keycloak:8080
+      KEYCLOAK_REALM: ${KEYCLOAK_REALM:-fakultet}
+      KEYCLOAK_CLIENT_ID: ${KEYCLOAK_CLIENT_ID:-fakultet-backend}
+      KEYCLOAK_CLIENT_SECRET: ${KEYCLOAK_CLIENT_SECRET:-change-me}
+      MINIO_ENDPOINT: minio:9000
+      MINIO_ACCESS_KEY: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD:-minioadmin}
+      MINIO_BUCKET_NAME: appointment-files
+      SECRET_KEY: ${SECRET_KEY:-dev-secret-key-change-in-prod}
+      SMTP_SERVER: ${SMTP_SERVER:-postfix}
+      SMTP_PORT: ${SMTP_PORT:-25}
+      CELERY_BROKER_URL: redis://:${REDIS_PASSWORD:-redis}@redis:6379/1
+      CELERY_RESULT_BACKEND: redis://:${REDIS_PASSWORD:-redis}@redis:6379/2
+      LOG_LEVEL: DEBUG
+      ENVIRONMENT: development
+      TZ: Europe/Belgrade
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend/app:/app/app
+      - ./backend/migrations:/app/migrations
+    networks:
+      - backend
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    restart: unless-stopped
+
+  # Celery Worker — Background tasks
+  celery_worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: studentska_celery
+    environment:
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/studentska_platforma
+      REDIS_URL: redis://:${REDIS_PASSWORD:-redis}@redis:6379/0
+      CELERY_BROKER_URL: redis://:${REDIS_PASSWORD:-redis}@redis:6379/1
+      CELERY_RESULT_BACKEND: redis://:${REDIS_PASSWORD:-redis}@redis:6379/2
+      SMTP_SERVER: ${SMTP_SERVER:-postfix}
+      SMTP_PORT: ${SMTP_PORT:-25}
+      LOG_LEVEL: DEBUG
+      TZ: Europe/Belgrade
+    volumes:
+      - ./backend/app:/app/app
+    networks:
+      - backend
+    depends_on:
+      - postgres
+      - redis
+    command: celery -A app.tasks.celery_app worker --loglevel=info
+    restart: unless-stopped
+
+  # Next.js Frontend
+  nextjs:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: studentska_nextjs
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:8000
+      NEXT_PUBLIC_KEYCLOAK_URL: http://localhost:8080
+      NEXT_PUBLIC_KEYCLOAK_REALM: ${KEYCLOAK_REALM:-fakultet}
+      NEXT_PUBLIC_KEYCLOAK_CLIENT_ID: ${KEYCLOAK_CLIENT_ID:-fakultet-frontend}
+      NODE_ENV: development
+      TZ: Europe/Belgrade
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend/src:/app/src
+      - ./frontend/public:/app/public
+    networks:
+      - backend
+    depends_on:
+      - fastapi
+    command: npm run dev
+    restart: unless-stopped
+
+  # Nginx — Reverse proxy (opcionalno za development)
+  # U dev-u direktno koristimo localhost:3000 i localhost:8000
+  # U production-u Nginx radi SSL termination
+
+networks:
+  backend:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  redis_data:
+  minio_data:

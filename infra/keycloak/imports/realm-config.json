@@ -1,0 +1,213 @@
+{
+  "realm": "fakultet",
+  "displayName": "Fakultetska Platforma",
+  "displayNameHtml": "<b>Fakultetska Platforma</b>",
+  "enabled": true,
+  "notBefore": 0,
+  "revokeRefreshToken": false,
+  "refreshTokenMaxReuse": 0,
+  "accessTokenLifespan": 900,
+  "accessTokenLifespanForImplicitFlow": 900,
+  "ssoSessionIdleTimeout": 1800,
+  "ssoSessionMaxLifespan": 36000,
+  "ssoSessionIdleTimeoutRememberMe": 604800,
+  "ssoSessionMaxLifespanRememberMe": 604800,
+  "offlineSessionIdleTimeout": 2592000,
+  "offlineSessionMaxLifespanEnabled": false,
+  "offlineSessionMaxLifespan": 5184000,
+  "clientSessionIdleTimeout": 0,
+  "clientSessionMaxLifespan": 0,
+  "eventsEnabled": true,
+  "eventsListeners": [
+    "jboss-logging"
+  ],
+  "enabledEventTypes": [],
+  "adminEventsEnabled": true,
+  "adminEventsDetailsEnabled": false,
+  "identityProviders": [],
+  "identityProviderMappers": [],
+  "roles": {
+    "realm": [
+      {
+        "name": "student",
+        "description": "Student role",
+        "composite": false,
+        "clientRole": false
+      },
+      {
+        "name": "asistent",
+        "description": "Teaching assistant role",
+        "composite": false,
+        "clientRole": false
+      },
+      {
+        "name": "profesor",
+        "description": "Professor role",
+        "composite": false,
+        "clientRole": false
+      },
+      {
+        "name": "admin",
+        "description": "Administrator role",
+        "composite": false,
+        "clientRole": false
+      }
+    ],
+    "client": {}
+  },
+  "groups": [],
+  "users": [],
+  "clients": [
+    {
+      "clientId": "fakultet-backend",
+      "name": "Fakultetska Platforma Backend",
+      "description": "FastAPI backend API",
+      "rootUrl": "",
+      "adminUrl": "",
+      "baseUrl": "http://localhost:8000",
+      "surrogateAuthRequired": false,
+      "clientAuthenticationType": "client_secret_basic",
+      "enabled": true,
+      "clientSecret": "change-me-in-production",
+      "redirectUris": [
+        "http://localhost:8000/api/v1/auth/sso/callback",
+        "http://localhost:8000/*"
+      ],
+      "webOrigins": [
+        "http://localhost:3000",
+        "http://localhost:8000"
+      ],
+      "postLogoutRedirectUris": [
+        "http://localhost:8000/api/v1/auth/logout"
+      ],
+      "protocol": "openid-connect",
+      "protocolMappers": [
+        {
+          "name": "realm roles",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-realm-role-mapper",
+          "consentRequired": false,
+          "config": {
+            "multivalued": "true",
+            "user.attribute": "realm_access.roles",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "claim.name": "realm_roles",
+            "jsonType.label": "String"
+          }
+        },
+        {
+          "name": "email",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-property-mapper",
+          "consentRequired": false,
+          "config": {
+            "userinfo.token.claim": "true",
+            "user.attribute": "email",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "claim.name": "email",
+            "jsonType.label": "String"
+          }
+        },
+        {
+          "name": "given name",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-property-mapper",
+          "consentRequired": false,
+          "config": {
+            "userinfo.token.claim": "true",
+            "user.attribute": "firstName",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "claim.name": "given_name",
+            "jsonType.label": "String"
+          }
+        },
+        {
+          "name": "family name",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-property-mapper",
+          "consentRequired": false,
+          "config": {
+            "userinfo.token.claim": "true",
+            "user.attribute": "lastName",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "claim.name": "family_name",
+            "jsonType.label": "String"
+          }
+        }
+      ],
+      "defaultClientScopes": [
+        "web-origins",
+        "profile",
+        "email"
+      ],
+      "optionalClientScopes": [
+        "address",
+        "phone",
+        "offline_access"
+      ]
+    },
+    {
+      "clientId": "fakultet-frontend",
+      "name": "Fakultetska Platforma Frontend",
+      "description": "Next.js frontend PWA",
+      "rootUrl": "",
+      "adminUrl": "",
+      "baseUrl": "http://localhost:3000",
+      "surrogateAuthRequired": false,
+      "clientAuthenticationType": "client_secret_basic",
+      "enabled": true,
+      "clientSecret": "frontend-secret-change-me",
+      "redirectUris": [
+        "http://localhost:3000/",
+        "http://localhost:3000/*",
+        "http://localhost:3000/dashboard"
+      ],
+      "webOrigins": [
+        "http://localhost:3000",
+        "localhost:3000"
+      ],
+      "postLogoutRedirectUris": [
+        "http://localhost:3000/"
+      ],
+      "protocol": "openid-connect",
+      "defaultClientScopes": [
+        "web-origins",
+        "profile",
+        "email"
+      ],
+      "optionalClientScopes": [
+        "address",
+        "phone",
+        "offline_access"
+      ]
+    }
+  ],
+  "internationalizationEnabled": false,
+  "supportedLocales": [],
+  "defaultLocale": "en",
+  "defaultSignatureAlgorithm": "RS256",
+  "offlineSessionMaxLifespanEnabled": false,
+  "duplicateEmailsAllowed": false,
+  "resetPasswordAllowed": false,
+  "editUsernameAllowed": false,
+  "bruteForceProtected": true,
+  "permanentLockout": false,
+  "maxPasswordAuthFailures": 30,
+  "maxDeltaTimeSeconds": 43200,
+  "failureFactor": 30,
+  "attributes": {
+    "webAuthnPolicyMultipleCredentialsAllowed": "true",
+    "webAuthnPolicyCreateTimeout": "0",
+    "webAuthnPolicyAvoidSameAuthenticatorRegister": "false",
+    "webAuthnPolicySignatureAlgorithms": [
+      "ES256",
+      "RS256"
+    ],
+    "webAuthnPolicyRpEntityName": "Keycloak",
+    "webAuthnPolicyAttestationConveyancePreference": "none"
+  }
+}
