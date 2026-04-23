@@ -14,7 +14,7 @@ from app.services import (
     get_current_user,
     AvailabilityService,
 )
-from app.schemas import (
+from app.schemas_module import (
     KeycloakUserInfo,
     AvailabilitySlotResponse,
     AvailabilitySlotCreate,

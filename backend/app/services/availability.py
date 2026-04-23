@@ -18,7 +18,7 @@ from app.models.models import (
     Waitlist,
     User,
 )
-from app.schemas import ExpandedSlot, AvailabilitySlotResponse
+from app.schemas_module import ExpandedSlot, AvailabilitySlotResponse
 
 logger = logging.getLogger(__name__)
 

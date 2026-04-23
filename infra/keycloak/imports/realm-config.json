@@ -66,9 +66,9 @@
       "adminUrl": "",
       "baseUrl": "http://localhost:8000",
       "surrogateAuthRequired": false,
-      "clientAuthenticationType": "client_secret_basic",
+      "clientAuthenticatorType": "client-secret",
       "enabled": true,
-      "clientSecret": "change-me-in-production",
+      "secret": "change-me-in-production",
       "redirectUris": [
         "http://localhost:8000/api/v1/auth/sso/callback",
         "http://localhost:8000/*"
@@ -76,9 +76,6 @@
       "webOrigins": [
         "http://localhost:3000",
         "http://localhost:8000"
-      ],
-      "postLogoutRedirectUris": [
-        "http://localhost:8000/api/v1/auth/logout"
       ],
       "protocol": "openid-connect",
       "protocolMappers": [
@@ -158,9 +155,8 @@
       "adminUrl": "",
       "baseUrl": "http://localhost:3000",
       "surrogateAuthRequired": false,
-      "clientAuthenticationType": "client_secret_basic",
+      "publicClient": true,
       "enabled": true,
-      "clientSecret": "frontend-secret-change-me",
       "redirectUris": [
         "http://localhost:3000/",
         "http://localhost:3000/*",
@@ -169,9 +165,6 @@
       "webOrigins": [
         "http://localhost:3000",
         "localhost:3000"
-      ],
-      "postLogoutRedirectUris": [
-        "http://localhost:3000/"
       ],
       "protocol": "openid-connect",
       "defaultClientScopes": [

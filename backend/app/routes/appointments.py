@@ -14,7 +14,7 @@ from app.services import (
     AppointmentService,
     AvailabilityService,
 )
-from app.schemas import (
+from app.schemas_module import (
     KeycloakUserInfo,
     AppointmentResponse,
     AppointmentCreate,

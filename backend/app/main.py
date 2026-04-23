@@ -12,7 +12,7 @@ import logging
 from app.config import settings
 from app.db.database import engine
 from app.db.base import Base
-from app.routes import appointments, availability, users, notifications, strikes, chat, files
+from app.routes import appointments, availability, users, notifications, strikes, chat, files, auth, search, admin
 
 # Configure logging
 logging.basicConfig(
@@ -84,11 +84,14 @@ def create_app() -> FastAPI:
     # Include routers
     app.include_router(appointments.router)
     app.include_router(availability.router)
+    app.include_router(auth.router)
     app.include_router(users.router)
     app.include_router(notifications.router)
     app.include_router(strikes.router)
     app.include_router(chat.router)
     app.include_router(files.router)
+    app.include_router(search.router)
+    app.include_router(admin.router)
     
     logger.info("FastAPI application created successfully.")
     return app

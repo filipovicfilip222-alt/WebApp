@@ -11,7 +11,7 @@ from sqlalchemy import select
 
 from app.db.database import get_db
 from app.services import get_current_user, get_current_user_with_role
-from app.schemas import (
+from app.schemas_module import (
     KeycloakUserInfo,
     StrikeRecordResponse,
 )

@@ -14,7 +14,7 @@ from app.models.models import (
     NotificationType,
     User,
 )
-from app.schemas import NotificationResponse
+from app.schemas_module import NotificationResponse
 
 logger = logging.getLogger(__name__)
 

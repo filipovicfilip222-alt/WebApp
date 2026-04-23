@@ -23,7 +23,7 @@ from app.models.models import (
     StrikeRecord,
     StrikeReason,
 )
-from app.schemas import AppointmentCreate, AppointmentUpdateProfessor
+from app.schemas_module import AppointmentCreate, AppointmentUpdateProfessor
 from app.services.redis_service import RedisService
 
 logger = logging.getLogger(__name__)

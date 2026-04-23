@@ -13,7 +13,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.config import settings
 from app.db.database import get_db
 from app.models.models import Appointment, AppointmentFile
-from app.schemas import AppointmentFileDownloadResponse, AppointmentFileResponse, KeycloakUserInfo
+from app.schemas_module import AppointmentFileDownloadResponse, AppointmentFileResponse, KeycloakUserInfo
 from app.services import get_current_user
 from app.services.storage import storage_service
 

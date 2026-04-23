@@ -1,5 +1,5 @@
 """API routes module."""
 
-from app.routes import appointments, availability, users, notifications, strikes, chat, files
+from app.routes import appointments, availability, auth, chat, files, notifications, search, strikes, users, admin
 
-__all__ = ["appointments", "availability", "users", "notifications", "strikes", "chat", "files"]
+__all__ = ["appointments", "availability", "auth", "chat", "files", "notifications", "search", "strikes", "users", "admin"]

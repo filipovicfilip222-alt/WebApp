@@ -13,7 +13,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.database import get_db, async_session
 from app.models.models import Appointment, TicketChatMessage
-from app.schemas import KeycloakUserInfo, TicketChatMessageCreate, TicketChatMessageResponse
+from app.schemas_module import KeycloakUserInfo, TicketChatMessageCreate, TicketChatMessageResponse
 from app.services import get_current_user
 from app.services.auth import auth_service
 from app.services.ws_manager import chat_manager

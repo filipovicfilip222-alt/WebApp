@@ -4,10 +4,10 @@ from typing import Callable, Optional
 import logging
 from jose import JWTError, jwt
 from fastapi import Depends, HTTPException, status
-from fastapi.security import HTTPBearer, HTTPAuthCredentials
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
 from app.config import settings
-from app.schemas import KeycloakUserInfo
+from app.schemas_module import KeycloakUserInfo
 
 logger = logging.getLogger(__name__)
 security = HTTPBearer()
@@ -65,7 +65,7 @@ class AuthService:
             logger.error(f"Unexpected error in token validation: {e}")
             return None
 
-    async def extract_token_from_header(self, credentials: HTTPAuthCredentials) -> str:
+    async def extract_token_from_header(self, credentials: HTTPAuthorizationCredentials) -> str:
         """Extract and validate token from authorization header."""
         token = credentials.credentials
         if not token:
@@ -81,7 +81,7 @@ class AuthService:
 auth_service = AuthService()
 
 
-async def get_current_user(credentials: HTTPAuthCredentials = Depends(security)) -> KeycloakUserInfo:
+async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)) -> KeycloakUserInfo:
     """
     Dependency for endpoints that require authentication.
     Extracts and validates JWT token from Authorization header.

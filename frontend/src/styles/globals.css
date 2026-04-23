@@ -3,18 +3,108 @@
 @tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #000000;
+  --background: 18 24 38;
+  --foreground: 240 248 255;
+  --muted: 148 163 184;
+  --panel: 14 20 34;
+  --panel-soft: 20 28 48;
+  --border: 51 65 85;
+  --accent: 94 234 212;
+  --accent-2: 96 165 250;
+  --danger: 248 113 113;
+  --success: 74 222 128;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #000000;
-    --foreground: #ffffff;
-  }
+html {
+  scroll-behavior: smooth;
+}
+
+* {
+  box-sizing: border-box;
 }
 
 body {
-  color: var(--foreground);
-  background: var(--background);
+  margin: 0;
+  color: rgb(var(--foreground));
+  background:
+    radial-gradient(circle at top left, rgba(45, 212, 191, 0.16), transparent 30%),
+    radial-gradient(circle at top right, rgba(59, 130, 246, 0.18), transparent 22%),
+    linear-gradient(180deg, rgb(10 15 28) 0%, rgb(18 24 38) 100%);
+  min-height: 100vh;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+::selection {
+  background: rgba(94, 234, 212, 0.28);
+  color: white;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(15, 23, 42, 0.6);
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, rgba(94, 234, 212, 0.9), rgba(96, 165, 250, 0.75));
+  border-radius: 999px;
+}
+
+@layer components {
+  .glass-panel {
+    @apply rounded-3xl border border-slate-700/70 bg-slate-950/55 shadow-[0_30px_80px_rgba(2,8,23,0.45)] backdrop-blur-xl;
+  }
+
+  .glass-panel-soft {
+    @apply rounded-2xl border border-slate-700/60 bg-slate-900/55 shadow-[0_20px_50px_rgba(2,8,23,0.35)] backdrop-blur-lg;
+  }
+
+  .section-title {
+    @apply text-sm font-semibold uppercase tracking-[0.24em] text-slate-400;
+  }
+
+  .hero-title {
+    @apply text-4xl font-black tracking-tight text-white md:text-6xl;
+  }
+
+  .hero-copy {
+    @apply max-w-3xl text-base leading-7 text-slate-300 md:text-lg;
+  }
+
+  .pill {
+    @apply inline-flex items-center gap-2 rounded-full border border-slate-700/80 bg-slate-900/60 px-3 py-1 text-xs font-medium text-slate-200;
+  }
+
+  .input {
+    @apply w-full rounded-2xl border border-slate-700 bg-slate-950/60 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-400/80 focus:ring-2 focus:ring-cyan-400/20;
+  }
+
+  .textarea {
+    @apply w-full rounded-2xl border border-slate-700 bg-slate-950/60 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-400/80 focus:ring-2 focus:ring-cyan-400/20;
+  }
+
+  .select {
+    @apply w-full rounded-2xl border border-slate-700 bg-slate-950/60 px-4 py-3 text-sm text-white outline-none transition focus:border-cyan-400/80 focus:ring-2 focus:ring-cyan-400/20;
+  }
+
+  .button-primary {
+    @apply inline-flex items-center justify-center rounded-2xl bg-gradient-to-r from-cyan-300 to-blue-500 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:scale-[1.01] hover:from-cyan-200 hover:to-blue-400;
+  }
+
+  .button-secondary {
+    @apply inline-flex items-center justify-center rounded-2xl border border-slate-600 bg-slate-900/70 px-5 py-3 text-sm font-semibold text-white transition hover:border-slate-500 hover:bg-slate-800;
+  }
+}
+
+.page-grid {
+  background-image: linear-gradient(rgba(148, 163, 184, 0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(148, 163, 184, 0.08) 1px, transparent 1px);
+  background-size: 24px 24px;
 }
